@@ -16,6 +16,7 @@ import {
 } from "../firebase";
 import { Avatar, IconButton, Menu, MenuItem } from "@material-ui/core";
 import {
+  ArrowBack,
   AttachFile,
   InsertEmoticon,
   Mic,
@@ -26,6 +27,7 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import Message from "./Message";
 import { getRecipientEmail } from "../utils/getRecipientEmail";
 import TimeAgo from "timeago-react";
+import Link from "next/link";
 
 const ChatScreen = ({ chat, messages }) => {
   const [user] = useAuthState(auth);
@@ -112,7 +114,12 @@ const ChatScreen = ({ chat, messages }) => {
   return (
     <Container>
       <Header>
-        {recipient ? (
+        <Link href="/chat">
+          <a className="back-btn">
+            <ArrowBack />
+          </a>
+        </Link>
+        {recipient && recipient.photoURL ? (
           <Avatar src={recipient.photoURL} />
         ) : (
           <Avatar>{recipient.name}</Avatar>
@@ -222,7 +229,7 @@ const HeaderIcons = styled.div``;
 const MessageContainer = styled.div`
   padding: 30px;
   background-color: #e5ded8;
-  min-height: calc(100dvh - 70px - 68px - 60px);
+  min-height: calc(100dvh - 70px - 68px);
 `;
 const EndofMessage = styled.div`
   margin-bottom: 50px;

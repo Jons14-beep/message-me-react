@@ -19,7 +19,7 @@ import { useAuthState } from "react-firebase-hooks/auth";
 import { useCollection } from "react-firebase-hooks/firestore";
 import Chat from "./Chat";
 import { Circle } from "better-react-spinkit";
-const Sidebar = () => {
+const Sidebar = ({ className }) => {
   const router = useRouter();
   const [user] = useAuthState(auth);
   if (user) {
@@ -69,7 +69,7 @@ const Sidebar = () => {
   };
 
   return (
-    <Container>
+    <div className={className}>
       <Header>
         <UserAvatar src={user?.photoURL} />
         <IconContainer>
@@ -110,7 +110,7 @@ const Sidebar = () => {
           <Circle color="#000" size={60} />
         </LoadingContainer>
       )}
-    </Container>
+    </div>
   );
 };
 
@@ -133,6 +133,7 @@ const Search = styled.div`
   align-items: center;
   padding: 15px;
   border-radius: 2px;
+  width: 100%;
 `;
 
 const SidebarButton = styled(Button)`
@@ -144,7 +145,6 @@ const SidebarButton = styled(Button)`
   }
 `;
 
-const Container = styled.div``;
 const Header = styled.div`
   display: flex;
   position: sticky;
@@ -156,6 +156,7 @@ const Header = styled.div`
   padding: 10px;
   height: 50px;
   border-bottom: 1px solid whitesmoke;
+  width: 100%;
 `;
 const IconContainer = styled.div``;
 const UserAvatar = styled(Avatar)`
