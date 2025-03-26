@@ -10,18 +10,21 @@ const Chat = ({ chat }) => {
   const router = useRouter();
   const [user] = useAuthState(auth);
 
-  const otherGuy = chat.users.find(email => email !== user.email)
+  const otherGuy = chat.users.find((email) => email !== user.email);
 
-  const [recipientSnapshot] = useCollection(
-    query(
-      collection(db, "users"),
-      where("email", "==", otherGuy)
-    )
+  const [snapshot, loading] = useCollection(
+    query(collection(db, "users"), where("email", "==", otherGuy))
   );
-  const recipient = recipientSnapshot.docs[0].data()
+
+  // Early return if loading or snapshot is empty
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const recipient = snapshot?.docs[0]?.data();
 
   const enterChat = () => {
-    router.push(`/chat/${id}`);
+    router.push(`/chat/${chat.id}`); // Fixed the issue with `id` being undefined
   };
 
   return (
@@ -29,9 +32,9 @@ const Chat = ({ chat }) => {
       {recipient ? (
         <UserAvatar src={recipient?.photoURL} />
       ) : (
-        <UserAvatar>{recipient.name}</UserAvatar>
+        <UserAvatar>{recipient?.name?.charAt(0)}</UserAvatar> // Show first letter if no photo
       )}
-      <p>{recipient.name}</p>
+      <p>{recipient?.name || "Unknown User"}</p> {/* Default name */}
     </Container>
   );
 };
@@ -49,6 +52,7 @@ const Container = styled.div`
     background-color: #e9eaeb;
   }
 `;
+
 const UserAvatar = styled(Avatar)`
   margin: 5px;
   margin-right: 15px;

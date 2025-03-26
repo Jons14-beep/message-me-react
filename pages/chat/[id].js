@@ -13,21 +13,25 @@ import {
   orderBy,
   getDoc,
   auth,
+  where,
 } from "../../firebase";
 import { useCollection } from "react-firebase-hooks/firestore";
 
 const Chat = ({ chat, messages }) => {
   const [user] = useAuthState(auth);
 
-  const otherGuy = chat.users.find(email => email !== user.email)
+  const otherGuy = chat.users.find((email) => email !== user.email);
 
-  const [recipientSnapshot] = useCollection(
-    query(
-      collection(db, "users"),
-      where("email", "==", otherGuy)
-    )
+  const [snapshot, loading] = useCollection(
+    query(collection(db, "users"), where("email", "==", otherGuy))
   );
-  const recipient = recipientSnapshot.docs[0].data()
+
+  // Early return if loading or snapshot is empty
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const recipient = snapshot?.docs[0]?.data();
   return (
     <Constainer>
       <Head>

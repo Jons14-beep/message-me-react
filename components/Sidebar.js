@@ -103,7 +103,7 @@ const Sidebar = () => {
 
       {chatsSnapshot?.docs ? (
         chatsSnapshot?.docs.map((chat) => (
-          <Chat key={chat.id} chat={chat.data()} />
+          <Chat key={chat.id} chat={{ id: chat.id, ...chat.data() }} />
         ))
       ) : (
         <LoadingContainer>

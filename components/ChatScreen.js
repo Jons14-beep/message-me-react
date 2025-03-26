@@ -41,15 +41,18 @@ const ChatScreen = ({ chat, messages }) => {
     )
   );
 
-  const otherGuy = chat.users.find(email => email !== user.email)
+  const otherGuy = chat.users.find((email) => email !== user.email);
 
-  const [recipientSnapshot] = useCollection(
-    query(
-      collection(db, "users"),
-      where("email", "==", otherGuy)
-    )
+  const [snapshot, loading] = useCollection(
+    query(collection(db, "users"), where("email", "==", otherGuy))
   );
-  const recipient = recipientSnapshot.docs[0].data()
+
+  // Early return if loading or snapshot is empty
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  const recipient = snapshot?.docs[0]?.data();
 
   const showMessages = () => {
     if (messagesSnapshot) {
@@ -116,7 +119,7 @@ const ChatScreen = ({ chat, messages }) => {
         )}
         <HeaserInformation>
           <h3>{recipient.name}</h3>
-          {recipientSnapshot ? (
+          {recipient ? (
             <p>
               Last Active:{" "}
               {recipient?.lastSeen?.toDate() ? (
@@ -167,9 +170,11 @@ const ChatScreen = ({ chat, messages }) => {
           value={input}
         />
 
-        <IconButton disabled={!input} type="submit" onClick={sendMessage}>
-          <Send />
-        </IconButton>
+        <div onClick={sendMessage}>
+          <IconButton disabled={!input} type="submit">
+            <Send />
+          </IconButton>
+        </div>
       </InputContainer>
     </Container>
   );
@@ -217,7 +222,7 @@ const HeaderIcons = styled.div``;
 const MessageContainer = styled.div`
   padding: 30px;
   background-color: #e5ded8;
-  min-height: 90vh;
+  min-height: calc(100dvh - 70px - 68px - 60px);
 `;
 const EndofMessage = styled.div`
   margin-bottom: 50px;
