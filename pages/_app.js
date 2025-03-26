@@ -34,6 +34,7 @@ function MyApp({ Component, pageProps }) {
         cityRef,
         {
           email: user.email,
+          name: user.displayName,
           lastSeen: serverTimestamp(),
           photoURL: user.photoURL,
         },

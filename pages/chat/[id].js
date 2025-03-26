@@ -14,15 +14,24 @@ import {
   getDoc,
   auth,
 } from "../../firebase";
-import getRecientEmail from "../../utils/getRecipientEmail";
+import { useCollection } from "react-firebase-hooks/firestore";
 
 const Chat = ({ chat, messages }) => {
   const [user] = useAuthState(auth);
 
+  const otherGuy = chat.users.find(email => email !== user.email)
+
+  const [recipientSnapshot] = useCollection(
+    query(
+      collection(db, "users"),
+      where("email", "==", otherGuy)
+    )
+  );
+  const recipient = recipientSnapshot.docs[0].data()
   return (
     <Constainer>
       <Head>
-        <title>Chat with {getRecientEmail(chat.users, user)}</title>
+        <title>Chat with {recipient.name}</title>
       </Head>
       <SideBar />
       <ChatContainer>

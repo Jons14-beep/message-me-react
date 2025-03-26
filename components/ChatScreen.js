@@ -24,7 +24,7 @@ import {
 } from "@material-ui/icons";
 import { useCollection } from "react-firebase-hooks/firestore";
 import Message from "./Message";
-import getRecientEmail from "../utils/getRecipientEmail";
+import { getRecipientEmail } from "../utils/getRecipientEmail";
 import TimeAgo from "timeago-react";
 
 const ChatScreen = ({ chat, messages }) => {
@@ -41,12 +41,15 @@ const ChatScreen = ({ chat, messages }) => {
     )
   );
 
+  const otherGuy = chat.users.find(email => email !== user.email)
+
   const [recipientSnapshot] = useCollection(
     query(
       collection(db, "users"),
-      where("email", "==", getRecientEmail(chat.users, user))
+      where("email", "==", otherGuy)
     )
   );
+  const recipient = recipientSnapshot.docs[0].data()
 
   const showMessages = () => {
     if (messagesSnapshot) {
@@ -97,8 +100,6 @@ const ChatScreen = ({ chat, messages }) => {
     ScrollToBottom();
   };
 
-  const recipient = recipientSnapshot?.docs?.[0]?.data();
-  const recipientEmail = getRecientEmail(chat.users, user);
   const open3Dot = (event) => {
     setAnchorEl(event.currentTarget);
   };
@@ -111,10 +112,10 @@ const ChatScreen = ({ chat, messages }) => {
         {recipient ? (
           <Avatar src={recipient.photoURL} />
         ) : (
-          <Avatar>{recipientEmail.toUpperCase()[0]}</Avatar>
+          <Avatar>{recipient.name}</Avatar>
         )}
         <HeaserInformation>
-          <h3>{recipientEmail}</h3>
+          <h3>{recipient.name}</h3>
           {recipientSnapshot ? (
             <p>
               Last Active:{" "}

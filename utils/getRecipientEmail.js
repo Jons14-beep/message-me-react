@@ -1,4 +1,5 @@
-const getRecientEmail = (users, userLoggedIn) =>
-  users?.filter((userToFilter) => userToFilter !== userLoggedIn?.email)[0];
-
-export default getRecientEmail;
+export const getRecipientEmail = (users, userLoggedIn) => {
+  return users?.filter((email) => {
+    return email !== userLoggedIn?.email
+  })[0];
+}
