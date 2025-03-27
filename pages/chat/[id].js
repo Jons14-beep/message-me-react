@@ -13,14 +13,17 @@ import {
 } from "../../firebase";
 
 const Chat = ({ chat, messages }) => {
-
   return (
     <Container>
       <div className="chat-sidebar-id">
         <Sidebar />
       </div>
       <ChatContainer className="chat-screen">
-        {chat && messages ? <ChatScreen chat={chat} messages={messages} /> : <div></div>}
+        {chat && messages ? (
+          <ChatScreen chat={chat} messages={messages} />
+        ) : (
+          <div></div>
+        )}
       </ChatContainer>
     </Container>
   );
@@ -46,10 +49,47 @@ const ChatContainer = styled.div`
 export default Chat;
 
 export async function getServerSideProps(context) {
-  const { id } = context.query;
+  try {
+    const { id } = context.query;
 
-  // If there's no `id` in the query, just return empty props and render only Sidebar
-  if (!id) {
+    // If there's no `id` in the query, just return empty props and render only Sidebar
+    if (!id) {
+      return {
+        props: {
+          chat: null, // No chat data
+          messages: [], // No messages
+        },
+      };
+    }
+
+    // Fetching chat and messages if `id` is available
+    const ref = collection(db, "chats", id, "messages");
+    const messagesRef = await getDocs(query(ref, orderBy("timestamp", "asc")));
+
+    const messages = messagesRef.docs
+      .map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }))
+      .map((messages) => ({
+        ...messages,
+        timestamp: messages.timestamp.toDate(),
+      }));
+
+    const chatRes = await getDoc(doc(db, "chats", id));
+    const chat = {
+      id: chatRes.id,
+      ...chatRes.data(),
+    };
+
+    return {
+      props: {
+        messages: JSON.stringify(messages),
+        chat: chat,
+      },
+    };
+  } catch (error) {
+    console.error(error);
     return {
       props: {
         chat: null, // No chat data
@@ -57,31 +97,4 @@ export async function getServerSideProps(context) {
       },
     };
   }
-
-  // Fetching chat and messages if `id` is available
-  const ref = collection(db, "chats", id, "messages");
-  const messagesRef = await getDocs(query(ref, orderBy("timestamp", "asc")));
-
-  const messages = messagesRef.docs
-    .map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    }))
-    .map((messages) => ({
-      ...messages,
-      timestamp: messages.timestamp.toDate(),
-    }));
-
-  const chatRes = await getDoc(doc(db, "chats", id));
-  const chat = {
-    id: chatRes.id,
-    ...chatRes.data(),
-  };
-
-  return {
-    props: {
-      messages: JSON.stringify(messages),
-      chat: chat,
-    },
-  };
 }

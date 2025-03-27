@@ -5,7 +5,7 @@ export default function Home() {
   return (
     <div>
       <Head>
-        <title>Message Me</title>
+        <title>Ktu Hub - Chat</title>
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
