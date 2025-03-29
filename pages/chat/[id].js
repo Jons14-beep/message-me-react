@@ -2,15 +2,16 @@ import React from "react";
 import styled from "styled-components";
 import ChatScreen from "../../components/ChatScreen";
 import Sidebar from "../../components/Sidebar";
-import {
-  doc,
-  db,
-  collection,
-  query,
-  getDocs,
-  orderBy,
-  getDoc,
+import { 
+  doc, 
+  db, 
+  collection, 
+  query, 
+  getDocs, 
+  orderBy, 
+  getDoc, 
 } from "../../firebase";
+import { limit } from "firebase/firestore"; // ✅ Ensure limit is imported from firestore
 
 const Chat = ({ chat, messages }) => {
   return (
@@ -22,7 +23,7 @@ const Chat = ({ chat, messages }) => {
         {chat && messages ? (
           <ChatScreen chat={chat} messages={messages} />
         ) : (
-          <div></div>
+          <div>No chat available</div>
         )}
       </ChatContainer>
     </Container>
@@ -37,11 +38,11 @@ const ChatContainer = styled.div`
   flex: 1;
   overflow: scroll;
   height: 100vh;
-
+  
   ::-webkit-scrollbar {
     display: none;
   }
-
+  
   -ms-overflow-style: none;
   scrollbar-width: none;
 `;
@@ -50,54 +51,45 @@ export default Chat;
 
 export async function getServerSideProps(context) {
   try {
-  console.log(0)
+    console.log("🟢 Running getServerSideProps...");
     const { id } = context.query;
-  console.log(1,id)
-    // If there's no `id` in the query, just return empty props and render only Sidebar
+    
     if (!id) {
-      return {
-        props: {
-          chat: null, // No chat data
-          messages: [], // No messages
-        },
-      };
+      console.log("⚠️ No chat ID found.");
+      return { props: { chat: null, messages: [] } };
     }
-    console.log(2)
-    // Fetching chat and messages if `id` is available
+
+    console.log(`📥 Fetching messages for chat ID: ${id}`);
     const ref = collection(db, "chats", id, "messages");
-    console.log(3)
-    const messagesRef = await getDocs(query(ref, orderBy("timestamp", "asc")));
-    console.log(4)
-    const messages = messagesRef.docs
-      .map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }))
-      .map((messages) => ({
-        ...messages,
-        timestamp: messages.timestamp.toDate(),
-      }));
-      console.log(5)
+    
+    // 🔹 Fetch only the latest 20 messages to improve performance
+    const messagesRef = await getDocs(
+      query(ref, orderBy("timestamp", "asc"), limit(20))
+    );
+
+    console.log(`✅ Fetched ${messagesRef.docs.length} messages.`);
+    const messages = messagesRef.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      timestamp: doc.data().timestamp?.toDate() || null,
+    }));
+
+    console.log("📥 Fetching chat details...");
     const chatRes = await getDoc(doc(db, "chats", id));
-    console.log(6)
-    const chat = {
-      id: chatRes.id,
-      ...chatRes.data(),
-    };
-    console.log(7)
+    
+    if (!chatRes.exists()) {
+      console.log("❌ Chat not found.");
+      return { props: { chat: null, messages: [] } };
+    }
+
+    const chat = { id: chatRes.id, ...chatRes.data() };
+
+    console.log("✅ Returning data...");
     return {
-      props: {
-        messages: JSON.stringify(messages),
-        chat: chat,
-      },
+      props: { messages: JSON.stringify(messages), chat },
     };
   } catch (error) {
-    console.error(error);
-    return {
-      props: {
-        chat: null, // No chat data
-        messages: [], // No messages
-      },
-    };
+    console.error("❌ Error in getServerSideProps:", error);
+    return { props: { chat: null, messages: [] } };
   }
 }
