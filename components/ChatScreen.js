@@ -26,8 +26,10 @@ import { useCollection } from "react-firebase-hooks/firestore";
 import Message from "./Message";
 import TimeAgo from "timeago-react";
 import Link from "next/link";
+import useViewportHeight from "../hooks/useViewportHeight";
 
 const ChatScreen = ({ chat, messages }) => {
+  useViewportHeight(); 
   const [user] = useAuthState(auth);
   const EndofMessagesRef = useRef(null);
   const router = useRouter();
@@ -109,7 +111,7 @@ const ChatScreen = ({ chat, messages }) => {
   const close3Dot = () => {
     setAnchorEl(null);
   };
-  return (  
+  return (
     <Container>
       <Header>
         <Link href="/chat">
@@ -188,7 +190,7 @@ const ChatScreen = ({ chat, messages }) => {
 export default ChatScreen;
 
 const Container = styled.div`
-  flex: 0.45;
+  flex: 1;
   border-right: 1px solid whitesmoke;
   min-width: 300px;
   overflow-y: scroll;
@@ -199,6 +201,7 @@ const Container = styled.div`
 
   -ms-overflow-style: none;
   scrollbar-width: none;
+  height: calc(var(--vh, 1vh) * 100);
 `;
 const Header = styled.div`
   position: sticky;
@@ -225,7 +228,7 @@ const HeaderIcons = styled.div``;
 const MessageContainer = styled.div`
   padding: 30px;
   background-color: #e5ded8;
-  min-height: calc(100dvh - 70px - 68px);
+  height: 100%;
 `;
 const EndofMessage = styled.div`
   margin-bottom: 50px;
