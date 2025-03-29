@@ -87,7 +87,7 @@ const Sidebar = ({ className }) => {
                 "aria-labelledby": "basic-button",
               }}
             >
-              {/* <MenuItem onClick={Close3dot}>Profile</MenuItem> */}
+              <MenuItem onClick={Close3dot}>Profile</MenuItem>
               <MenuItem onClick={onSignOut}>Logout</MenuItem>
             </Menu>
           </IconButton>
