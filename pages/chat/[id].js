@@ -1,29 +1,60 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import styled from "styled-components";
-import ChatScreen from "../../components/ChatScreen";
-import Sidebar from "../../components/Sidebar";
-import { 
-  doc, 
-  db, 
-  collection, 
-  query, 
-  getDocs, 
-  orderBy, 
-  getDoc, 
-} from "../../firebase";
-import { limit } from "firebase/firestore"; // ✅ Ensure limit is imported from firestore
+import { useRouter } from "next/router";
+import { doc, collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import { db } from "../firebase"; // ✅ Ensure correct Firestore import
+import ChatScreen from "./ChatScreen";
+import Sidebar from "./Sidebar";
 
-const Chat = ({ chat, messages }) => {
+const Chat = () => {
+  const router = useRouter();
+  const { id } = router.query;
+
+  const [chat, setChat] = useState(null);
+  const [messages, setMessages] = useState([]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    console.log(`📥 Subscribing to chat ID: ${id}`);
+
+    // ✅ Fetch chat details
+    const chatRef = doc(db, "chats", id);
+    const unsubscribeChat = onSnapshot(chatRef, (docSnap) => {
+      if (docSnap.exists()) {
+        setChat({ id: docSnap.id, ...docSnap.data() });
+      } else {
+        setChat(null);
+      }
+    });
+
+    // ✅ Fetch messages in real-time
+    const messagesRef = collection(db, "chats", id, "messages");
+    const messagesQuery = query(messagesRef, orderBy("timestamp", "asc"));
+    const unsubscribeMessages = onSnapshot(messagesQuery, (snapshot) => {
+      setMessages(
+        snapshot.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }))
+      );
+    });
+
+    // 🛑 Cleanup subscription on unmount
+    return () => {
+      unsubscribeChat();
+      unsubscribeMessages();
+    };
+  }, [id]);
+
   return (
     <Container>
-      <div className="chat-sidebar-id">
-        <Sidebar />
-      </div>
-      <ChatContainer className="chat-screen">
-        {chat && messages ? (
+      <Sidebar />
+      <ChatContainer>
+        {chat && messages.length > 0 ? (
           <ChatScreen chat={chat} messages={messages} />
         ) : (
-          <div>No chat available</div>
+          <div>Loading chat...</div>
         )}
       </ChatContainer>
     </Container>
@@ -38,58 +69,12 @@ const ChatContainer = styled.div`
   flex: 1;
   overflow: scroll;
   height: 100vh;
-  
+
   ::-webkit-scrollbar {
     display: none;
   }
-  
   -ms-overflow-style: none;
   scrollbar-width: none;
 `;
 
 export default Chat;
-
-export async function getServerSideProps(context) {
-  try {
-    console.log("🟢 Running getServerSideProps...");
-    const { id } = context.query;
-    
-    if (!id) {
-      console.log("⚠️ No chat ID found.");
-      return { props: { chat: null, messages: [] } };
-    }
-
-    console.log(`📥 Fetching messages for chat ID: ${id}`);
-    const ref = collection(db, "chats", id, "messages");
-    
-    // 🔹 Fetch only the latest 20 messages to improve performance
-    const messagesRef = await getDocs(
-      query(ref, orderBy("timestamp", "asc"), limit(20))
-    );
-
-    console.log(`✅ Fetched ${messagesRef.docs.length} messages.`);
-    const messages = messagesRef.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-      timestamp: doc.data().timestamp?.toDate() || null,
-    }));
-
-    console.log("📥 Fetching chat details...");
-    const chatRes = await getDoc(doc(db, "chats", id));
-    
-    if (!chatRes.exists()) {
-      console.log("❌ Chat not found.");
-      return { props: { chat: null, messages: [] } };
-    }
-
-    const chat = { id: chatRes.id, ...chatRes.data() };
-
-    console.log("✅ Returning data...");
-    return {
-      props: { messages: JSON.stringify(messages), chat },
-    };
-  } catch (error) {
-    console.error("❌ Error in getServerSideProps:", error);
-    return { props: { chat: null, messages: [] } };
-  }
-}
