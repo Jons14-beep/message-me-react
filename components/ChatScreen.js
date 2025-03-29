@@ -19,13 +19,11 @@ import {
   ArrowBack,
   AttachFile,
   InsertEmoticon,
-  Mic,
   MoreVert,
   Send,
 } from "@material-ui/icons";
 import { useCollection } from "react-firebase-hooks/firestore";
 import Message from "./Message";
-import { getRecipientEmail } from "../utils/getRecipientEmail";
 import TimeAgo from "timeago-react";
 import Link from "next/link";
 
@@ -111,7 +109,7 @@ const ChatScreen = ({ chat, messages }) => {
   const close3Dot = () => {
     setAnchorEl(null);
   };
-  return (
+  return (  
     <Container>
       <Header>
         <Link href="/chat">

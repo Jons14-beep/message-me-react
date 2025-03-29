@@ -56,11 +56,11 @@ const Chat = () => {
         </Banner>
       </Container>
     );
-  }
+  } 
 
   return (
     <Container>
-      <Sidebar />
+      <Sidebar className="chat-sidebar-id"/>
       <ChatContainer>
         {chat && messages.length > 0 ? (
           <ChatScreen chat={chat} messages={messages} />

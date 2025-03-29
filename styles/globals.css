@@ -17,6 +17,7 @@ body {
 
 .chat-sidebar, .chat-sidebar-id {
   min-width: 300px;
+  min-height: 100dvh;
 }
 
 .chat-screen {
