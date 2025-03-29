@@ -50,8 +50,9 @@ export default Chat;
 
 export async function getServerSideProps(context) {
   try {
+  console.log(0)
     const { id } = context.query;
-
+  console.log(1,id)
     // If there's no `id` in the query, just return empty props and render only Sidebar
     if (!id) {
       return {
@@ -61,11 +62,12 @@ export async function getServerSideProps(context) {
         },
       };
     }
-
+    console.log(2)
     // Fetching chat and messages if `id` is available
     const ref = collection(db, "chats", id, "messages");
+    console.log(3)
     const messagesRef = await getDocs(query(ref, orderBy("timestamp", "asc")));
-
+    console.log(4)
     const messages = messagesRef.docs
       .map((doc) => ({
         id: doc.id,
@@ -75,13 +77,14 @@ export async function getServerSideProps(context) {
         ...messages,
         timestamp: messages.timestamp.toDate(),
       }));
-
+      console.log(5)
     const chatRes = await getDoc(doc(db, "chats", id));
+    console.log(6)
     const chat = {
       id: chatRes.id,
       ...chatRes.data(),
     };
-
+    console.log(7)
     return {
       props: {
         messages: JSON.stringify(messages),
