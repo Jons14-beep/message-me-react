@@ -29,7 +29,7 @@ const Container = styled.div`
   background-color: whitesmoke;
   display: grid;
   place-items: center;
-  height: 100vh;
+  height: 100dvh;
 `;
 const LoginContainer = styled.div`
   padding: 100px;

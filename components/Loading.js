@@ -3,7 +3,7 @@ import React from "react";
 
 const Loading = () => {
   return (
-    <center style={{ display: "grid", placeItems: "center", height: "100vh" }}>
+    <center style={{ display: "grid", placeItems: "center", height: "100dvh" }}>
       <div>
         <img
           src="https://i.ibb.co/wwNZ5Lk/logo.jpg"

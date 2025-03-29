@@ -1,7 +1,13 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { useRouter } from "next/router";
-import { doc, collection, query, orderBy, onSnapshot } from "firebase/firestore";
+import {
+  doc,
+  collection,
+  query,
+  orderBy,
+  onSnapshot,
+} from "firebase/firestore";
 import { db } from "../../firebase"; // ✅ Ensure correct Firestore import
 import ChatScreen from "../../components/ChatScreen";
 import Sidebar from "../../components/Sidebar";
@@ -51,16 +57,14 @@ const Chat = () => {
     return (
       <Container>
         <Sidebar className="chat-sidebar" />
-        <Banner>
-          <span>Select a chat</span>
-        </Banner>
+        <span className="banner">Select a chat</span>
       </Container>
     );
-  } 
+  }
 
   return (
     <Container>
-      <Sidebar className="chat-sidebar-id"/>
+      <Sidebar className="chat-sidebar-id" />
       <ChatContainer>
         {chat && messages.length > 0 ? (
           <ChatScreen chat={chat} messages={messages} />
@@ -79,22 +83,12 @@ const Container = styled.div`
 const ChatContainer = styled.div`
   flex: 1;
   overflow: scroll;
-  height: 100vh;
 
   ::-webkit-scrollbar {
     display: none;
   }
   -ms-overflow-style: none;
   scrollbar-width: none;
-`;
-
-const Banner = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: 1;
-  font-size: 18px;
-  color: gray;
 `;
 
 export default Chat;
