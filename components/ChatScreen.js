@@ -58,20 +58,20 @@ const ChatScreen = ({ chat, messages }) => {
 
   const showMessages = () => {
     if (messagesSnapshot) {
-      return messagesSnapshot.docs.map((message) => (
+      return messagesSnapshot.docs.map((msg) => (
         <Message
-          key={message.id}
-          id={message.id}
-          user={message.data().user}
+          key={msg.id}
+          id={msg.id}
+          user={msg.data().user}
           message={{
-            ...message.data(),
-            timestamp: message.data().timestamp?.toDate().getTime(),
+            ...msg.data(),
+            timestamp: msg.data().timestamp?.toDate().getTime(),
           }}
         />
       ));
     } else {
-      JSON.parse(messages).map((message) => (
-        <Message key={message.id} id={message.id} user={message.user} />
+      return messages.map((msg) => (
+        <Message key={msg.id} id={msg.id} user={msg.user} message={msg} />
       ));
     }
   };

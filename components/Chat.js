@@ -23,7 +23,7 @@ const Chat = ({ chat }) => {
   const recipient = snapshot?.docs[0]?.data();
 
   return (
-    <Link href={"/chat/" + chat.id}>
+    <Link href={"/chat/?id=" + chat.id}>
       <a style={{ textDecoration: "none", color: "black" }}>
         <Container>
           {recipient ? (
