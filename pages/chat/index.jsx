@@ -66,7 +66,7 @@ const Chat = () => {
     <Container>
       <Sidebar className="chat-sidebar-id" />
       <ChatContainer>
-        {chat && messages.length > 0 ? (
+        {chat ? (
           <ChatScreen chat={chat} messages={messages} />
         ) : (
           <div>Loading chat...</div>

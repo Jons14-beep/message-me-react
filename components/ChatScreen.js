@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { useRouter } from "next/router";
 import styled from "styled-components";
@@ -29,7 +29,7 @@ import Link from "next/link";
 import useViewportHeight from "../hooks/useViewportHeight";
 
 const ChatScreen = ({ chat, messages }) => {
-  useViewportHeight(); 
+  useViewportHeight();
   const [user] = useAuthState(auth);
   const EndofMessagesRef = useRef(null);
   const router = useRouter();
@@ -42,6 +42,19 @@ const ChatScreen = ({ chat, messages }) => {
       orderBy("timestamp", "asc")
     )
   );
+
+  const ScrollToBottom = () => {
+    if (EndofMessagesRef.current) {
+      EndofMessagesRef.current.scrollIntoView({
+        behaviour: "auto",
+        block: "start",
+      });
+    }
+  };
+
+  useEffect(() => {
+    ScrollToBottom();
+  }, [EndofMessagesRef.current]);
 
   const otherGuy = chat.users.find((email) => email !== user.email);
 
@@ -74,13 +87,6 @@ const ChatScreen = ({ chat, messages }) => {
         <Message key={msg.id} id={msg.id} user={msg.user} message={msg} />
       ));
     }
-  };
-
-  const ScrollToBottom = () => {
-    EndofMessagesRef.current.scrollIntoView({
-      behaviour: "smooth",
-      block: "start",
-    });
   };
 
   const sendMessage = (e) => {
@@ -228,10 +234,11 @@ const HeaderIcons = styled.div``;
 const MessageContainer = styled.div`
   padding: 30px;
   background-color: #e5ded8;
-  height: 100%;
+  height: calc(var(--vh, 1vh) * 100 - 70px - 68px);
+  overflow-y: auto;
 `;
 const EndofMessage = styled.div`
-  margin-bottom: 50px;
+  margin-bottom: 0px;
 `;
 const InputContainer = styled.form`
   display: flex;
